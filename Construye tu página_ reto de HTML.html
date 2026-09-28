@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Construye tu página: reto de HTML</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF2FA; --panel:#FFFFFF; --ink:#1B2350; --muted:#56608C; --line:#C9D1EA;
+  --accent:#2F47C8; --accent-soft:#E2E7FB; --tag:#B0125B;
+  --ok:#1F7A4A; --okbg:#E1F3E8; --bad:#B3261E; --badbg:#FBE6E4; --part:#B7791F;
+  --editor:#1B2350; --ed-text:#E8ECFF; --ed-tag:#FF7AB0; --ed-attr:#FFC266; --ed-str:#8BE3AE; --ed-muted:#8C95C4; --ed-bad:#FF9A90; --ed-blank:#2C3780;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11152B; --panel:#1A2044; --ink:#E6EAFF; --muted:#A3AAD0; --line:#2F3769;
+    --accent:#8FA2FF; --accent-soft:#252E62; --tag:#FF7AB0;
+    --ok:#6FDB9B; --okbg:#173A2A; --bad:#FF8A80; --badbg:#3D1E22; --part:#FFC266;
+    --editor:#0B0E21;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11152B; --panel:#1A2044; --ink:#E6EAFF; --muted:#A3AAD0; --line:#2F3769;
+  --accent:#8FA2FF; --accent-soft:#252E62; --tag:#FF7AB0;
+  --ok:#6FDB9B; --okbg:#173A2A; --bad:#FF8A80; --badbg:#3D1E22; --part:#FFC266;
+  --editor:#0B0E21;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.5}
+.mono,code,.ed{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace}
+code{font-size:.9em;background:var(--accent-soft);color:var(--tag);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+img{max-width:100%}
+
+.btn{border:0;background:var(--accent);color:#fff;font-weight:700;padding:.7em 1.3em;border-radius:8px}
+:root[data-theme="dark"] .btn{color:#0B0E21}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#0B0E21}}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+
+/* ---------- Intro ---------- */
+.intro{max-width:760px;margin:0 auto;padding:48px 22px 64px}
+.hero{font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.08;margin:0 0 18px;font-weight:700;letter-spacing:-.01em}
+.hero .tg{display:block;font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:.42em;color:var(--tag);letter-spacing:0}
+.lead{font-size:1.15rem;max-width:60ch;margin:0 0 28px;color:var(--muted)}
+.rules{margin:0 0 32px;padding-left:1.2em;max-width:62ch}
+.rules li{margin-bottom:.45em}
+.form{display:grid;gap:14px;max-width:460px}
+.form label{font-weight:700;display:grid;gap:6px}
+.form input{font:inherit;padding:.65em .8em;border:2px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.err{color:var(--bad);margin:0;min-height:1.5em}
+
+/* ---------- Game ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--line)}
+.bar-in{max-width:1200px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.brand .tg{color:var(--tag)}
+.who{flex:1;min-width:140px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who b{color:var(--ink)}
+.stat{display:flex;align-items:baseline;gap:6px}
+.stat b{font-size:1.3rem}
+.stat span{color:var(--muted);font-size:.9rem}
+.track{max-width:1200px;margin:0 auto;padding:0 20px 10px;display:flex;gap:3px}
+.seg{flex:1;height:8px;border-radius:2px;background:var(--line)}
+.seg.okf{background:var(--ok)} .seg.okp{background:var(--part)} .seg.fail{background:var(--bad)}
+.seg.cur{background:var(--accent)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:24px;max-width:1200px;margin:0 auto;padding:22px 20px 60px;align-items:start}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+.q{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:24px}
+.lvl{margin:0;color:var(--accent);font-weight:700}
+.qn{margin:0 0 10px;color:var(--muted)}
+.q h2{font-size:1.35rem;line-height:1.3;margin:0 0 18px}
+.opts{display:grid;gap:10px;margin-bottom:18px}
+.opt{display:block;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:.75em 1em}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.opt:disabled{cursor:default}
+
+.ed{background:var(--editor);color:var(--ed-text);border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:15px;line-height:1.7;white-space:pre;margin:0 0 18px}
+.ed .t{color:var(--ed-tag)} .ed .a{color:var(--ed-attr)} .ed .s{color:var(--ed-str)} .ed .c{color:var(--ed-muted);font-style:italic}
+.blank{font:inherit;width:8ch;background:var(--ed-blank);color:#fff;border:0;border-bottom:2px solid var(--ed-attr);text-align:center;padding:1px 4px;border-radius:4px}
+.blank:disabled{opacity:1}
+
+.olabel{font-weight:700;margin:0 0 6px}
+.olist{list-style:none;margin:0 0 16px;padding:10px;min-height:56px;border:2px dashed var(--line);border-radius:10px;display:grid;gap:6px;counter-reset:n}
+.olist li{counter-increment:n}
+.oitem{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:var(--editor);color:var(--ed-text);border:2px solid transparent;border-radius:8px;padding:.45em .8em;font-family:'IBM Plex Mono',monospace;font-size:15px}
+.olist .oitem::before{content:counter(n);color:var(--ed-muted);min-width:1.5em}
+.oitem:hover:not(:disabled){border-color:var(--ed-attr)}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.pool .oitem{width:auto}
+.empty{color:var(--muted);margin:6px 4px}
+
+.bug{padding:8px 0;white-space:normal}
+.bline{display:grid;grid-template-columns:2.5em 1fr;width:100%;text-align:left;background:transparent;border:0;border-left:4px solid transparent;color:var(--ed-text);padding:.25em .8em .25em .4em;font-family:inherit;font-size:inherit;white-space:pre}
+.bline .ln{color:var(--ed-muted)}
+.bline:hover:not(:disabled){background:rgba(255,255,255,.06)}
+.bline.sel{border-left-color:var(--ed-attr);background:rgba(255,194,102,.12)}
+.bline.right{border-left-color:var(--ed-str);background:rgba(139,227,174,.14)}
+.bline.wrong{border-left-color:var(--ed-bad);background:rgba(255,154,144,.14)}
+
+.codearea{display:block;width:100%;min-height:190px;resize:vertical;background:var(--editor);color:var(--ed-text);border:2px solid var(--line);border-radius:10px;padding:14px 16px;font-family:'IBM Plex Mono',monospace;font-size:15px;line-height:1.6;white-space:pre;overflow-x:auto;tab-size:2;margin-bottom:12px}
+.browser{border:2px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.browser p{margin:0;padding:6px 12px;background:var(--accent-soft);color:var(--muted);font-size:.9rem}
+.pv{background:#fff;min-height:70px}
+
+.hintbox{border-left:4px solid var(--part);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 16px}
+.fb{border-left:4px solid;padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 16px}
+.fb.ok{border-color:var(--ok);background:var(--okbg)}
+.fb.bad{border-color:var(--bad);background:var(--badbg)}
+.fb.info{border-color:var(--accent);background:var(--accent-soft)}
+.sol{margin-top:10px}
+.sol .ed{margin:6px 0 0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tries{margin:0 0 0 auto;color:var(--muted)}
+.dots{letter-spacing:.15em;color:var(--accent)}
+
+.file{position:sticky;top:120px;background:var(--editor);border-radius:14px;overflow:hidden}
+@media (max-width:880px){.file{position:static}}
+.fhead{display:flex;justify-content:space-between;padding:10px 16px;color:var(--ed-text);font-family:'IBM Plex Mono',monospace;font-size:14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.fhead span{color:var(--ed-muted)}
+.lines{list-style:none;margin:0;padding:10px 0 14px;max-height:62vh;overflow:auto;counter-reset:ln;font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.7;color:var(--ed-text)}
+.lines li{counter-increment:ln;white-space:pre;padding:0 16px 0 0;display:flex}
+.lines li::before{content:counter(ln);min-width:2.6em;padding-right:1em;text-align:right;color:var(--ed-muted)}
+.lines .t{color:var(--ed-tag)} .lines .a{color:var(--ed-attr)} .lines .s{color:var(--ed-str)} .lines .c{color:var(--ed-muted);font-style:italic}
+.lines li.bad,.lines li.bad .c{color:var(--ed-bad)}
+.lines li.new{animation:flash 1.4s ease-out}
+.lines .ghost{color:var(--ed-muted);padding-left:1em}
+@keyframes flash{0%{background:rgba(139,227,174,.35)}100%{background:transparent}}
+.fnote{margin:0;padding:0 16px 14px;color:var(--ed-muted);font-size:.85rem}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--bad);color:#fff;padding:12px 18px;border-radius:10px;max-width:90vw;z-index:20;font-weight:700}
+
+/* ---------- Results ---------- */
+.res{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:26px}
+.card h1{margin:0;font-size:clamp(1.6rem,4.5vw,2.2rem);line-height:1.15}
+.card .grp{margin:4px 0 18px;color:var(--muted)}
+.gradebox{display:flex;align-items:baseline;gap:10px;margin:0 0 20px;padding:16px 20px;border-radius:12px;background:var(--accent-soft)}
+.grade{font-size:clamp(3.4rem,12vw,5.2rem);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.gradebox span{color:var(--muted);font-size:1.2rem}
+.gradebox .verdict{margin-left:auto;font-weight:700;color:var(--ink);font-size:1.05rem;text-align:right}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px;margin:0 0 22px}
+@media (max-width:520px){.facts{grid-template-columns:minmax(0,1fr)}}
+.facts div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:700;text-align:right}
+.facts .warn dd{color:var(--bad)}
+.lv{display:grid;gap:8px;margin:0 0 20px}
+.lvrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 3.5em;gap:10px;align-items:center;font-size:.95rem}
+.meter{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ok)}
+.lvrow b{text-align:right}
+.shot{margin:0;padding:12px 14px;border-radius:8px;border:2px dashed var(--accent);font-weight:700}
+.after{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+details{margin-top:22px}
+summary{cursor:pointer;font-weight:700}
+details .file{position:static;margin-top:10px}
+
+.qtop{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.cd{margin:0;text-align:right;display:grid;line-height:1.1}
+.cd b{font-family:'IBM Plex Mono',monospace;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.cd span{color:var(--muted);font-size:.8rem}
+.cd.low b{color:var(--bad)}
+.cdbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:8px 0 18px}
+.cdbar i{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+.cdbar.low i{background:var(--bad)}
+.card h3{margin:0 0 4px;font-size:1.05rem}
+.tleg{margin:0 0 10px;color:var(--muted);font-size:.85rem}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:0 0 20px}
+.tchip{display:flex;justify-content:space-between;gap:6px;border:2px solid var(--line);border-left-width:6px;border-radius:6px;padding:2px 7px;font-size:.85rem;font-variant-numeric:tabular-nums}
+.tchip.okf{border-left-color:var(--ok)} .tchip.okp{border-left-color:var(--part)} .tchip.fail{border-left-color:var(--bad)}
+.tchip.code{background:var(--accent-soft)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+var CO = "<" + "!--", CC = "--" + ">";
+var LEVELS = ["Fundamentos","Estructura de la página","Formato de texto","Listas, enlaces e imágenes","Cazadores de errores","Escribe tu propio código"];
+var SCORES = [10,6,3], HINT_COST = 3, MAX_TRIES = 3;
+
+var REWARDS = [
+ '<!DOCTYPE html>',
+ '<html lang="es">',
+ '<head>',
+ '  <meta charset="UTF-8">',
+ '  <title>Mi página</title>',
+ '</head>',
+ '<body>',
+ '  <h1>Mi primera página</h1>',
+ '  <p>Hoy aprendí <strong>HTML</strong>.</p>',
+ '  <h2>Lo que ya sé</h2>',
+ '  <ul>',
+ '    <li>Abrir y cerrar etiquetas</li>',
+ '    <li>Usar <em>cursivas</em> y <strong>negritas</strong></li>',
+ '    <li>Crear listas</li>',
+ '  </ul>',
+ '  <h2>Mis pasos</h2>',
+ '  <ol>',
+ '    <li>Escribir la estructura</li>',
+ '    <li>Agregar contenido</li>',
+ '    <li>Revisar errores</li>',
+ '  </ol>',
+ '  <p>Línea uno<br>Línea dos</p>',
+ '  <img src="logo.png" alt="Logo de mi escuela">',
+ '  <p>Visita <a href="https://www.google.com">Google</a></p>',
+ '  <hr>',
+ '  <h3>Contacto</h3>',
+ '  <p><em>Hecho por mí</em></p>',
+ '  <p>¡Gracias por visitar!</p>',
+ '</body>',
+ '</html>'
+];
+
+var BANK = [
+ /* ---------- Nivel 1: Fundamentos ---------- */
+ {lvl:0,type:"mc",q:"¿Qué significan las siglas HTML?",
+  opts:["HyperText Markup Language","High Tech Modern Language","HyperTool Multi Language","Home Text Making Language"],ans:0,
+  hint:"La «M» viene de una palabra en inglés que significa «marcado».",
+  explain:"HTML = HyperText Markup Language: lenguaje de marcado de hipertexto.",sol:"HyperText Markup Language"},
+ {lvl:0,type:"mc",q:"HTML es un lenguaje de…",
+  opts:["Programación, como Python: hace cálculos y toma decisiones","Marcado: indica qué es cada parte del contenido","Bases de datos: guarda información","Diseño: sólo define colores y tamaños"],ans:1,
+  hint:"Piensa en qué hace HTML con un título o un párrafo: ¿lo calcula, o lo etiqueta?",
+  explain:"HTML marca la estructura (esto es un título, esto es un párrafo). Los colores son trabajo de CSS y la lógica, de JavaScript.",sol:"Marcado"},
+ {lvl:0,type:"mc",q:"En `<p>Hola</p>`, ¿qué es `<p>`?",
+  opts:["Un atributo","Una etiqueta de apertura","Una etiqueta de cierre","Un comentario"],ans:1,
+  hint:"Está al principio y no lleva diagonal.",
+  explain:"`<p>` abre el párrafo y `</p>` lo cierra. Todo lo que queda en medio es el contenido.",sol:"<p> es la etiqueta de apertura"},
+ {lvl:0,type:"fill",q:"Escribe la etiqueta de cierre completa que falta.",
+  parts:["<p>Hola mundo",{b:["</p>"]}],
+  hint:"Una etiqueta de cierre se escribe igual que la de apertura, pero con una diagonal / después del signo <.",
+  explain:"La etiqueta de cierre de un párrafo es </p>.",sol:"<p>Hola mundo</p>"},
+ {lvl:0,type:"mc",q:"¿Cuál de estas etiquetas NO necesita etiqueta de cierre?",
+  opts:["`<p>`","`<h1>`","`<br>`","`<strong>`"],ans:2,
+  hint:"Busca la que no envuelve ningún texto: sólo hace algo en el lugar donde la pones.",
+  explain:"`<br>` (salto de línea), `<img>` y `<hr>` son etiquetas vacías: no envuelven contenido, por eso no se cierran.",sol:"<br>"},
+ {lvl:0,type:"mc",q:"En `<a href=\"https://example.com\">Clic</a>`, ¿qué es `href`?",
+  opts:["Una etiqueta","Un atributo","El contenido","Un comentario"],ans:1,
+  hint:"Va dentro de la etiqueta de apertura y tiene la forma nombre=\"valor\".",
+  explain:"Los atributos dan información extra a una etiqueta y se escriben dentro de la apertura: nombre=\"valor\".",sol:"href es un atributo"},
+
+ /* ---------- Nivel 2: Estructura ---------- */
+ {lvl:1,type:"order",q:"Ordena las líneas para formar la estructura básica de un documento HTML. Toca cada línea en el orden correcto.",
+  items:["<!DOCTYPE html>","<html>","<head>","<title>Mi página</title>","</head>","<body>","<h1>Hola</h1>","</body>","</html>"],
+  shuffle:[5,2,8,0,6,3,1,7,4],
+  hint:"Primero la declaración del tipo de documento. Todo lo demás vive dentro de <html>, y <head> va antes que <body>.",
+  explain:"Primero <!DOCTYPE html>, luego <html>, dentro el <head> (con el título) y después el <body> con el contenido visible."},
+ {lvl:1,type:"mc",q:"¿Dentro de qué etiqueta va todo el contenido que SE VE en la página?",
+  opts:["`<head>`","`<body>`","`<title>`","`<meta>`"],ans:1,
+  hint:"En inglés significa «cuerpo».",
+  explain:"`<body>` es el cuerpo de la página: textos, imágenes, listas y enlaces van ahí.",sol:"<body>"},
+ {lvl:1,type:"fill",q:"Completa: este texto debe aparecer en la pestaña del navegador, no en la página.",
+  parts:["<head>\n  <",{b:["title"]},">Mi página</",{b:["title"]},">\n</head>"],same:true,
+  hint:"En inglés, la palabra significa «título».",
+  explain:"<title> define el texto de la pestaña del navegador y va dentro de <head>.",sol:"<title>Mi página</title>"},
+ {lvl:1,type:"mc",q:"¿Qué tipo de información va dentro de `<head>`?",
+  opts:["Los párrafos y las imágenes de la página","Datos sobre la página (título, codificación de caracteres, enlaces a estilos) que no se muestran en el cuerpo","El menú principal de navegación","El pie de página con los datos de contacto"],ans:1,
+  hint:"Es como la ficha técnica de la página: información para el navegador, no para el lector.",
+  explain:"`<head>` guarda información sobre la página: el título, la codificación (`<meta charset>`), estilos, etc.",sol:"Datos sobre la página"},
+
+ /* ---------- Nivel 3: Formato de texto ---------- */
+ {lvl:2,type:"mc",q:"¿Cuál es el encabezado de MAYOR tamaño e importancia?",
+  opts:["`<h6>`","`<h1>`","`<head>`","`<header>`"],ans:1,
+  hint:"Cuidado: `<head>` no es un encabezado. Piensa en números.",
+  explain:"`<h1>` es el encabezado más importante; `<h6>` el menos importante.",sol:"<h1>"},
+ {lvl:2,type:"mc",q:"¿Cuántos niveles de encabezado existen en HTML?",
+  opts:["3","5","6","10"],ans:2,
+  hint:"Van de h1 hasta…",
+  explain:"Existen seis: de `<h1>` a `<h6>`.",sol:"6"},
+ {lvl:2,type:"fill",q:"Completa para que «cuidado» se vea en negritas y se marque como texto importante.",
+  parts:["<p>Ten <",{b:["strong","b"]},">cuidado</",{b:["strong","b"]},"> con el horno.</p>"],same:true,
+  hint:"La etiqueta recomendada significa «fuerte» en inglés.",
+  explain:"<strong> marca texto importante y se ve en negritas. <b> también pone negritas, pero <strong> es la recomendada.",sol:"<p>Ten <strong>cuidado</strong> con el horno.</p>"},
+ {lvl:2,type:"fill",q:"Completa para poner «muy» en cursivas, con énfasis.",
+  parts:["<p>Estoy <",{b:["em","i"]},">muy</",{b:["em","i"]},"> feliz.</p>"],same:true,
+  hint:"Es la abreviatura de «emphasis» (énfasis): sólo dos letras.",
+  explain:"<em> da énfasis y se ve en cursivas. <i> también pone cursivas.",sol:"<p>Estoy <em>muy</em> feliz.</p>"},
+ {lvl:2,type:"mc",q:"¿Qué etiqueta hace un salto de línea dentro de un párrafo?",
+  opts:["`<lb>`","`<break>`","`<br>`","`<nl>`"],ans:2,
+  hint:"Es una abreviatura de «break» con sólo dos letras.",
+  explain:"`<br>` hace un salto de línea y no lleva cierre.",sol:"<br>"},
+ {lvl:2,type:"mc",q:"Dentro de un `<p>` escribes varias palabras separadas por muchos espacios y varios Enter. ¿Qué muestra el navegador?",
+  opts:["Respeta todos los espacios y saltos tal como los escribiste","Junta los espacios y saltos, y muestra un solo espacio","Muestra un error","Borra el párrafo completo"],ans:1,
+  hint:"Por algo existe la etiqueta `<br>`.",
+  explain:"El navegador ignora espacios y saltos extra: los convierte en un solo espacio. Para saltar de línea hay que usar `<br>` o un nuevo `<p>`.",sol:"Muestra un solo espacio"},
+ {lvl:2,type:"mc",q:"¿Cuál es la forma correcta de meter una etiqueta dentro de otra (anidar)?",
+  opts:["`<p><strong>Hola</p></strong>`","`<p><strong>Hola</strong></p>`","`<strong><p>Hola</strong></p>`","`<p>Hola<strong></p></strong>`"],ans:1,
+  hint:"La última etiqueta que abres es la primera que cierras, como cajas dentro de cajas.",
+  explain:"Se cierra en orden inverso: abres p, abres strong, cierras strong, cierras p.",sol:"<p><strong>Hola</strong></p>"},
+
+ /* ---------- Nivel 4: Listas, enlaces e imágenes ---------- */
+ {lvl:3,type:"mc",q:"¿Qué etiqueta crea una lista NUMERADA?",
+  opts:["`<ul>`","`<ol>`","`<li>`","`<list>`"],ans:1,
+  hint:"Numerada = ordenada. En inglés: ordered list.",
+  explain:"`<ol>` (ordered list) es numerada; `<ul>` (unordered list) usa viñetas; `<li>` es cada elemento.",sol:"<ol>"},
+ {lvl:3,type:"fill",q:"Completa esta lista CON VIÑETAS (sin números).",
+  parts:["<",{b:["ul"]},">\n  <",{b:["li"]},">Manzana</li>\n  <li>Pera</li>\n</ul>"],
+  hint:"Primer espacio: lista no ordenada (unordered list). Segundo: cada elemento de la lista (list item).",
+  explain:"<ul> abre la lista con viñetas y cada elemento va dentro de <li>.",sol:"<ul>\n  <li>Manzana</li>\n  <li>Pera</li>\n</ul>"},
+ {lvl:3,type:"mc",q:"¿Qué atributo indica a dónde te lleva un enlace `<a>`?",
+  opts:["`src`","`link`","`href`","`url`"],ans:2,
+  hint:"Viene de «hypertext reference».",
+  explain:"`href` guarda la dirección a la que lleva el enlace: `<a href=\"https://…\">`.",sol:"href"},
+ {lvl:3,type:"fill",q:"Completa los dos atributos para mostrar la imagen gato.jpg con una descripción.",
+  parts:["<img ",{b:["src"]},"=\"gato.jpg\" ",{b:["alt"]},"=\"Un gato naranja\">"],
+  hint:"El primero viene de «source» (origen). El segundo, de «alternative» (texto alternativo).",
+  explain:"src indica qué archivo mostrar; alt describe la imagen para quien no puede verla o si no carga.",sol:"<img src=\"gato.jpg\" alt=\"Un gato naranja\">"},
+ {lvl:3,type:"mc",q:"¿Qué hace `target=\"_blank\"` en un enlace?",
+  opts:["Pone el texto del enlace en blanco","Abre el enlace en una pestaña nueva","Deja el enlace vacío","Oculta el enlace"],ans:1,
+  hint:"«blank» significa «en blanco»… como una pestaña nueva, vacía.",
+  explain:"`target=\"_blank\"` abre la dirección en una pestaña nueva del navegador.",sol:"Abre en una pestaña nueva"},
+
+ /* ---------- Nivel 5: Cazadores de errores ---------- */
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<!DOCTYPE html>","<html>","<body>","  <h1>Bienvenidos<h1>","  <p>Esta es mi página.</p>","</body>","</html>"],ans:3,
+  hint:"Revisa que cada etiqueta que se abre se cierre bien.",
+  explain:"En la línea 4, el segundo <h1> debería ser </h1>: le falta la diagonal.",sol:"  <h1>Bienvenidos</h1>"},
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<body>","  <p>Hola, soy <em>Ana</em>.</p>","  <p>Me gusta <strong>programar</p></strong>","  <p>Adiós.</p>","</body>"],ans:2,
+  hint:"Fíjate en el ORDEN en que se cierran las etiquetas.",
+  explain:"Las etiquetas están mal anidadas: primero se cierra </strong> y luego </p>.",sol:"  <p>Me gusta <strong>programar</strong></p>"},
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<h2>Enlaces</h2>","<p>Mi buscador favorito:</p>","<a href=\"https://www.google.com>Google</a>","<img src=\"logo.png\" alt=\"Logo\">"],ans:2,
+  hint:"Cuenta las comillas de cada atributo.",
+  explain:"En la línea 3 el valor de href abre comillas pero nunca las cierra.",sol:"<a href=\"https://www.google.com\">Google</a>"},
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<ol>","  <li>Uno</li>","  <li>Dos</li>","  <li>Tres</li>","</ul>"],ans:4,
+  hint:"¿Qué tipo de lista se abrió al principio?",
+  explain:"Se abrió <ol> pero se cerró con </ul>. Debe cerrarse con </ol>.",sol:"</ol>"},
+
+ /* ---------- Nivel 6: Escribe tu propio código ---------- */
+ {lvl:5,type:"code",q:"Escribe un encabezado principal (el más importante) que diga: Mi primera página",
+  hint:"Usa la etiqueta de encabezado número 1 y no olvides cerrarla.",
+  explain:"El encabezado principal se escribe con <h1> y se cierra con </h1>.",sol:"<h1>Mi primera página</h1>",check:"h1"},
+ {lvl:5,type:"code",q:"Escribe un párrafo que diga «Esto es importante», con SÓLO la palabra «importante» en negritas.",
+  hint:"Necesitas dos etiquetas: una para el párrafo y otra, dentro, para las negritas.",
+  explain:"La etiqueta de negritas va dentro del párrafo y se cierra antes que él.",sol:"<p>Esto es <strong>importante</strong></p>",check:"pstrong"},
+ {lvl:5,type:"code",q:"Escribe una lista con viñetas (sin números) que tenga exactamente tres frutas.",
+  hint:"Una etiqueta para la lista con viñetas y tres etiquetas de elemento dentro. Todas se cierran.",
+  explain:"Una lista con viñetas es <ul> y cada fruta va en su propio <li>…</li>.",sol:"<ul>\n  <li>Mango</li>\n  <li>Uva</li>\n  <li>Fresa</li>\n</ul>",check:"ul3"},
+ {lvl:5,type:"code",q:"Escribe un enlace a https://www.google.com cuyo texto sea «Buscar» y que se abra en una pestaña nueva.",
+  hint:"Necesitas la etiqueta de enlace con DOS atributos: uno para la dirección y otro para la pestaña nueva.",
+  explain:"<a> con href para la dirección y target=\"_blank\" para abrir en una pestaña nueva.",sol:"<a href=\"https://www.google.com\" target=\"_blank\">Buscar</a>",check:"alink"},
+
+ /* ---------- Preguntas extra del banco (variantes) ---------- */
+ {lvl:0,type:"mc",q:"¿Qué programa necesitas para ver cómo se ve una página HTML?",
+  opts:["Un navegador web (Chrome, Edge, Firefox…)","Excel","Un compilador especial","Photoshop"],ans:0,
+  hint:"Es el mismo programa que usas para entrar a internet.",
+  explain:"El navegador lee el HTML y lo dibuja en pantalla.",sol:"Un navegador web"},
+ {lvl:0,type:"mc",q:"¿Cómo se escribe un comentario en HTML (texto que el navegador NO muestra)?",
+  opts:["`// comentario`","`"+CO+" comentario "+CC+"`","`/* comentario */`","`# comentario`"],ans:1,
+  hint:"Empieza con < y un signo de admiración.",
+  explain:"Los comentarios en HTML empiezan con "+CO+" y terminan con "+CC+".",sol:CO+" comentario "+CC},
+ {lvl:1,type:"fill",q:"Completa la primera línea, que le dice al navegador que es un documento HTML moderno.",
+  parts:["<!",{b:["doctype"]}," html>"],
+  hint:"Es «tipo de documento» en inglés, todo junto.",
+  explain:"<!DOCTYPE html> siempre va en la primera línea.",sol:"<!DOCTYPE html>"},
+ {lvl:1,type:"mc",q:"¿Qué etiqueta envuelve TODO el documento, incluidos `<head>` y `<body>`?",
+  opts:["`<body>`","`<html>`","`<main>`","`<page>`"],ans:1,
+  hint:"Tiene el mismo nombre que el lenguaje.",
+  explain:"`<html>` es la raíz: todo lo demás vive dentro de ella.",sol:"<html>"},
+ {lvl:2,type:"mc",q:"¿Qué etiqueta dibuja una línea horizontal para separar secciones?",
+  opts:["`<line>`","`<hr>`","`<br>`","`<sep>`"],ans:1,
+  hint:"Viene de «horizontal rule» (regla horizontal).",
+  explain:"`<hr>` dibuja una línea horizontal y, como `<br>`, no lleva cierre.",sol:"<hr>"},
+ {lvl:2,type:"fill",q:"Completa para crear un encabezado de SEGUNDO nivel (un subtítulo).",
+  parts:["<",{b:["h2"]},">Mis gustos</",{b:["h2"]},">"],same:true,
+  hint:"Letra h y un número.",
+  explain:"<h2> es el encabezado de segundo nivel, debajo de <h1>.",sol:"<h2>Mis gustos</h2>"},
+ {lvl:3,type:"mc",q:"Cada elemento dentro de una lista `<ul>` u `<ol>` va en la etiqueta…",
+  opts:["`<item>`","`<li>`","`<el>`","`<dd>`"],ans:1,
+  hint:"Viene de «list item».",
+  explain:"`<li>` (list item) envuelve cada elemento de una lista.",sol:"<li>"},
+ {lvl:3,type:"fill",q:"Completa la etiqueta y el atributo para que el enlace lleve a https://www.unam.mx",
+  parts:["<",{b:["a"]}," ",{b:["href"]},"=\"https://www.unam.mx\">UNAM</a>"],
+  hint:"La etiqueta de enlace es una sola letra; el atributo de la dirección empieza con h.",
+  explain:"Un enlace es <a> y su dirección va en el atributo href.",sol:"<a href=\"https://www.unam.mx\">UNAM</a>"},
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<ul>","  <li>Rojo</li>","  <li>Azul","  <li>Verde</li>","</ul>"],ans:2,
+  hint:"Compara cada línea con las de arriba y abajo.",
+  explain:"En la línea 3 falta cerrar el elemento con </li>.",sol:"  <li>Azul</li>"},
+ {lvl:4,type:"bug",q:"Toca la línea que tiene el error.",
+  lines:["<p>Hoy es <em>viernes</em>.</p>","<p>Me gusta el <strong>fútbol</strong>.</p>","<p>Mi color es el <b>azul</strong>.</p>","<p>Adiós.</p>"],ans:2,
+  hint:"Revisa que cada etiqueta se cierre con su MISMO nombre.",
+  explain:"En la línea 3 se abre <b> pero se cierra con </strong>.",sol:"<p>Mi color es el <b>azul</b>.</p>"},
+ {lvl:5,type:"code",q:"Escribe una lista NUMERADA con tres pasos para lavarte los dientes.",
+  hint:"Una etiqueta para la lista ordenada y tres etiquetas de elemento dentro. Todas se cierran.",
+  explain:"Una lista numerada es <ol> y cada paso va en su propio <li>…</li>.",sol:"<ol>\n  <li>Poner pasta</li>\n  <li>Cepillar</li>\n  <li>Enjuagar</li>\n</ol>",check:"ol3"},
+ {lvl:5,type:"code",q:"Escribe un párrafo que diga «Hola a todos», con SÓLO la palabra «todos» en cursivas.",
+  hint:"Una etiqueta para el párrafo y otra, dentro, para las cursivas con énfasis.",
+  explain:"La etiqueta de cursivas va dentro del párrafo y se cierra antes que él.",sol:"<p>Hola a <em>todos</em></p>",check:"pem"}
+];
+var PICK=[6,4,7,5,4,4];
+var LIMIT={mc:45,fill:60,bug:60,order:120,code:180};
+var N=PICK.reduce(function(a,b){return a+b;},0);
+
+/* ---------- utilidades ---------- */
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function inline(s){return esc(s).replace(/`([^`]+)`/g,function(_,c){return "<code>"+c+"</code>";});}
+function hlTag(t){
+  var m=t.match(/^(<\/?!?)([A-Za-z0-9]*)([\s\S]*?)(\/?>)?$/);
+  if(!m) return esc(t);
+  var attrs=esc(m[3]).replace(/([\w-]+)(=)(&quot;[^&]*?(?:&quot;|$)|[^\s&]+)?/g,function(x,a,e,v){
+    return '<span class="a">'+a+'</span>'+e+(v?'<span class="s">'+v+'</span>':'');});
+  return '<span class="t">'+esc(m[1])+esc(m[2])+'</span>'+attrs+'<span class="t">'+esc(m[4]||"")+'</span>';
+}
+function hl(src){
+  var out="",last=0,re=/(<!--[\s\S]*?-->)|(<\/?[!A-Za-z][^>]*>?)/g,m;
+  while((m=re.exec(src))){
+    out+=esc(src.slice(last,m.index));
+    out+= m[1] ? '<span class="c">'+esc(m[1])+'</span>' : hlTag(m[2]);
+    last=re.lastIndex;
+  }
+  return out+esc(src.slice(last));
+}
+function norm(s){return String(s||"").toLowerCase().replace(/\s+/g,"");}
+function normText(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[.!¡¿?,«»"]/g,"").replace(/\s+/g," ").trim();}
+function fmtTime(ms){var s=Math.max(0,Math.floor(ms/1000)),m=Math.floor(s/60);s%=60;return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
+function fmtLong(ms){var s=Math.max(0,Math.floor(ms/1000)),m=Math.floor(s/60);s%=60;return m+" min "+s+" s";}
+
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function range(n){var r=[];for(var i=0;i<n;i++)r.push(i);return r;}
+function buildPlan(){
+  var plan=[];
+  PICK.forEach(function(k,l){
+    var ids=[];BANK.forEach(function(q,i){if(q.lvl===l)ids.push(i);});
+    shuffle(ids).slice(0,k).forEach(function(id){
+      var q=BANK[id],e={id:id};
+      if(q.type==="mc") e.perm=shuffle(range(q.opts.length));
+      if(q.type==="order"){var p;do{p=shuffle(range(q.items.length));}while(p.every(function(v,x){return v===x;}));e.perm=p;}
+      plan.push(e);
+    });
+  });
+  return plan;
+}
+function Qi(i){return BANK[S.plan[i].id];}
+function versionCode(){var h=0;S.plan.forEach(function(e){h=(h*31+e.id+1+(e.perm?e.perm[0]*7:0))%1679616;});return ("000"+h.toString(36).toUpperCase()).slice(-4);}
+function limitOf(q){return LIMIT[q.type];}
+
+/* ---------- almacenamiento ---------- */
+var KEY="htmlquest-v2", NAMES="htmlquest-names";
+function load(){try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function bumpName(n){
+  var k=normText(n),map={};
+  try{map=JSON.parse(localStorage.getItem(NAMES)||"{}")||{};}catch(e){}
+  map[k]=(map[k]||0)+1;
+  try{localStorage.setItem(NAMES,JSON.stringify(map));}catch(e){}
+  return map[k];
+}
+function newCur(){return {tries:0,hint:false,done:false,ok:false,pts:0,sel:[],vals:[],code:"",msg:"",mt:"",shown:0,deadline:0};}
+
+var S=load(); if(S&&!S.plan) S=null;
+var app=document.getElementById("app"), justAdded=false, resetArmed=false, toastTimer=null;
+
+/* ---------- validación de código ---------- */
+var VOID={br:1,img:1,hr:1,meta:1,input:1,link:1,area:1,base:1,col:1,embed:1,source:1,track:1,wbr:1};
+function structural(raw){
+  var lt=(raw.match(/</g)||[]).length, gt=(raw.match(/>/g)||[]).length;
+  if(lt!==gt) return "Revisa los signos < y >: a alguna etiqueta le falta uno.";
+  var re=/<(\/?)([A-Za-z][A-Za-z0-9]*)\b([^>]*)>/g,m,stack=[];
+  while((m=re.exec(raw))){
+    if(((m[3].match(/"/g)||[]).length)%2) return "A un atributo le falta una comilla: revisa <"+m[2]+" …>.";
+    var n=m[2].toLowerCase();
+    if(m[1]){
+      if(!stack.length) return "Cerraste </"+n+"> pero nunca la abriste.";
+      var top=stack.pop();
+      if(top!==n) return "Se esperaba </"+top+"> antes de </"+n+">. La última etiqueta que abres es la primera que cierras.";
+    } else if(!VOID[n] && !/\/$/.test(m[3])) stack.push(n);
+  }
+  if(stack.length){var o=stack[stack.length-1];return "Falta cerrar la etiqueta <"+o+">. Agrega </"+o+">.";}
+  return null;
+}
+function checkCode(kind,raw){
+  var e=structural(raw); if(e) return e;
+  var d=new DOMParser().parseFromString(raw,"text/html");
+  if(kind==="h1"){
+    var h=d.querySelector("h1");
+    if(!h) return d.querySelector("h2,h3,h4,h5,h6")?"Usaste un encabezado, pero no el más importante.":"No encuentro un encabezado principal.";
+    if(normText(h.textContent)!=="mi primera pagina") return "El encabezado debe decir exactamente: Mi primera página";
+    return null;
+  }
+  if(kind==="pstrong"){
+    var p=d.querySelector("p"); if(!p) return "Falta el párrafo.";
+    var s=p.querySelector("strong,b"); if(!s) return "Dentro del párrafo falta la etiqueta de negritas.";
+    if(normText(s.textContent)!=="importante") return "Sólo la palabra «importante» debe ir en negritas.";
+    if(normText(p.textContent)!=="esto es importante") return "El párrafo debe decir: Esto es importante";
+    return null;
+  }
+  if(kind==="pem"){
+    var p2=d.querySelector("p"); if(!p2) return "Falta el párrafo.";
+    var em=p2.querySelector("em,i"); if(!em) return "Dentro del párrafo falta la etiqueta de cursivas.";
+    if(normText(em.textContent)!=="todos") return "Sólo la palabra «todos» debe ir en cursivas.";
+    if(normText(p2.textContent)!=="hola a todos") return "El párrafo debe decir: Hola a todos";
+    return null;
+  }
+  if(kind==="ul3"||kind==="ol3"){
+    var want=kind==="ul3"?"ul":"ol", other=kind==="ul3"?"ol":"ul";
+    var u=d.querySelector(want);
+    if(!u) return d.querySelector(other)?(want==="ul"?"Esa lista es numerada. Se pide una lista con viñetas.":"Esa lista es con viñetas. Se pide una lista numerada."):"No encuentro la lista que se pide.";
+    var li=u.querySelectorAll(":scope > li");
+    if(li.length!==3) return "Tu lista tiene "+li.length+" elemento(s); deben ser exactamente 3.";
+    for(var i=0;i<li.length;i++) if(!li[i].textContent.trim()) return "Ningún elemento de la lista puede quedar vacío.";
+    return null;
+  }
+  if(kind==="alink"){
+    var a=d.querySelector("a"); if(!a) return "Falta la etiqueta de enlace.";
+    var href=a.getAttribute("href"); if(href===null) return "Al enlace le falta el atributo que indica la dirección.";
+    if(!/^https:\/\/www\.google\.com\/?$/i.test(href.trim())) return "La dirección debe ser exactamente https://www.google.com";
+    if(normText(a.textContent)!=="buscar") return "El texto del enlace debe ser: Buscar";
+    if((a.getAttribute("target")||"").trim()!=="_blank") return "Falta el atributo para que se abra en una pestaña nueva.";
+    return null;
+  }
+  return null;
+}
+function renderPreview(host,raw){
+  var root=host.shadowRoot||host.attachShadow({mode:"open"});
+  var d=new DOMParser().parseFromString(raw||"","text/html");
+  d.querySelectorAll("script,iframe,object,embed,style,link,meta,base,form").forEach(function(n){n.remove();});
+  d.body.querySelectorAll("*").forEach(function(el){
+    Array.prototype.slice.call(el.attributes).forEach(function(at){
+      if(/^on/i.test(at.name)||/^\s*javascript:/i.test(at.value)) el.removeAttribute(at.name);
+    });
+  });
+  root.innerHTML='<style>:host{all:initial;display:block;background:#fff;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.4;padding:12px 16px}a{color:#1a0dab}img{max-width:100%}.vacio{color:#888;font-family:system-ui,sans-serif;font-size:14px}</style>'+
+    (d.body.innerHTML.trim()?d.body.innerHTML:'<p class="vacio">Aquí verás cómo se ve tu código.</p>');
+  if(!root._wired){root.addEventListener("click",function(ev){if(ev.target.closest&&ev.target.closest("a"))ev.preventDefault();});root._wired=true;}
+}
+
+/* ---------- puntaje ---------- */
+function totalPts(){return (S.res||[]).reduce(function(a,r){return a+(r?r.pts:0);},0);}
+var MAXPTS=N*10;
+
+/* ---------- pantallas ---------- */
+function render(){
+  if(!S||!S.start) return renderIntro();
+  if(S.idx>=N) return renderResults();
+  renderGame();
+}
+
+function renderIntro(){
+  app.innerHTML=
+  '<main class="intro">'+
+   '<h1 class="hero"><span class="tg">&lt;h1&gt;</span>Construye tu página<span class="tg">&lt;/h1&gt;</span></h1>'+
+   '<p class="lead">Supera '+N+' retos de HTML. Cada respuesta correcta agrega una línea real a tu archivo <b>index.html</b>; cada reto perdido deja un hueco.</p>'+
+   '<ul class="rules">'+
+    '<li>Tienes 3 intentos por reto. Al primer intento ganas 10 puntos, al segundo 6 y al tercero 3.</li>'+
+    '<li>Cada reto tiene tiempo límite. Si se acaba, el reto cuenta como perdido.</li>'+
+    '<li>Pegar texto está desactivado: todo se escribe a mano.</li>'+
+    '<li>Cada alumno recibe una versión distinta de la actividad.</li>'+
+    '<li>Puedes pedir una pista, pero cuesta 3 puntos.</li>'+
+    '<li>Los retos se ponen más difíciles: al final escribirás tu propio código.</li>'+
+    '<li>No salgas de esta pestaña. Tu maestro verá cuántas veces lo hiciste.</li>'+
+    '<li>Al terminar, toma una captura de pantalla de tu resultado.</li>'+
+   '</ul>'+
+   '<div class="form">'+
+    '<label>Nombre completo<input id="fname" autocomplete="name" maxlength="60" placeholder="Nombre y apellidos"></label>'+
+    '<label>Grupo<input id="fgroup" maxlength="20" placeholder="Por ejemplo: 2°B"></label>'+
+    '<p class="err" id="ferr"></p>'+
+    '<div><button class="btn" data-act="start">Comenzar</button></div>'+
+   '</div>'+
+  '</main>';
+  var n=document.getElementById("fname"); n.focus();
+  app.querySelectorAll("input").forEach(function(i){i.addEventListener("keydown",function(e){if(e.key==="Enter")start();});});
+}
+
+function start(){
+  var name=document.getElementById("fname").value.trim().replace(/\s+/g," ");
+  var group=document.getElementById("fgroup").value.trim();
+  var err=document.getElementById("ferr");
+  if(name.split(" ").length<2||name.length<5){err.textContent="Escribe tu nombre y al menos un apellido.";return;}
+  if(!group){err.textContent="Escribe tu grupo.";return;}
+  S={name:name,group:group,idx:0,res:[],start:Date.now(),end:0,blurs:0,pastes:0,attemptNo:bumpName(name),plan:buildPlan(),cur:newCur()};
+  save(); render(); window.scrollTo(0,0);
+}
+
+function fileLines(){
+  var out="";
+  for(var i=0;i<S.res.length;i++){
+    var r=S.res[i];
+    if(r&&r.ok) out+='<li'+(justAdded&&i===S.res.length-1?' class="new"':'')+'>'+hl(REWARDS[i])+'</li>';
+    else out+='<li class="bad'+(justAdded&&i===S.res.length-1?' new':'')+'"><span class="c">'+esc(CO+" línea perdida en el reto "+(i+1)+" "+CC)+'</span></li>';
+  }
+  if(S.res.length<REWARDS.length) out+='<li><span class="ghost">…</span></li>';
+  return out;
+}
+function fileBox(){
+  var ok=S.res.filter(function(r){return r&&r.ok;}).length;
+  return '<aside class="file" aria-label="Tu archivo index.html"><div class="fhead">index.html<span>'+ok+' de '+REWARDS.length+' líneas</span></div>'+
+   '<ol class="lines" id="lines">'+fileLines()+'</ol>'+
+   (S.idx<N?'<p class="fnote">Cada reto correcto escribe una línea de tu página.</p>':'')+'</aside>';
+}
+
+function renderGame(){
+  var q=Qi(S.idx), c=S.cur, body="", i;
+  if(!c.shown){c.shown=Date.now();c.deadline=c.shown+limitOf(q)*1000;save();}
+  var segs="";
+  for(i=0;i<N;i++){
+    var r=S.res[i], cls="seg";
+    if(r) cls+= r.ok ? (r.tries===1&&!r.hint?" okf":" okp") : " fail";
+    else if(i===S.idx) cls+=" cur";
+    segs+='<span class="'+cls+'"></span>';
+  }
+
+  if(q.type==="mc"){
+    body='<div class="opts" role="list">';
+    var perm=S.plan[S.idx].perm||range(q.opts.length);
+    perm.forEach(function(k){var o=q.opts[k];
+      var cl="opt";
+      if(c.done){ if(k===q.ans) cl+=" right"; else if(c.sel[0]===k) cl+=" wrong"; }
+      else if(c.sel[0]===k) cl+=" sel";
+      body+='<button class="'+cl+'" data-act="pick" data-i="'+k+'"'+(c.done?" disabled":"")+'>'+inline(o)+'</button>';
+    });
+    body+='</div>';
+  }
+  if(q.type==="fill"){
+    var bi=0; body='<pre class="ed">';
+    q.parts.forEach(function(p){
+      if(typeof p==="string") body+=esc(p).replace(/(&lt;\/?|&gt;)/g,'<span class="t">$1</span>');
+      else { body+='<input class="blank" data-b="'+bi+'" aria-label="Espacio '+(bi+1)+'" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(c.vals[bi]||"")+'"'+(c.done?" disabled":"")+'>'; bi++; }
+    });
+    body+='</pre>';
+  }
+  if(q.type==="order"){
+    body='<p class="olabel">Tu orden</p><ol class="olist">';
+    if(!c.sel.length) body+='<li class="empty">Toca las líneas de abajo en el orden correcto.</li>';
+    c.sel.forEach(function(ix){body+='<li><button class="oitem" data-act="unpick" data-i="'+ix+'"'+(c.done?" disabled":"")+'>'+hl(q.items[ix])+'</button></li>';});
+    body+='</ol><p class="olabel">Líneas disponibles</p><div class="pool">';
+    var left=S.plan[S.idx].perm.filter(function(ix){return c.sel.indexOf(ix)<0;});
+    if(!left.length) body+='<p class="empty">Ya usaste todas. Toca una línea de tu orden para regresarla.</p>';
+    left.forEach(function(ix){body+='<button class="oitem" data-act="opick" data-i="'+ix+'"'+(c.done?" disabled":"")+'>'+hl(q.items[ix])+'</button>';});
+    body+='</div>';
+  }
+  if(q.type==="bug"){
+    body='<div class="ed bug">';
+    q.lines.forEach(function(l,k){
+      var cl="bline";
+      if(c.done){ if(k===q.ans) cl+=" right"; else if(c.sel[0]===k) cl+=" wrong"; }
+      else if(c.sel[0]===k) cl+=" sel";
+      body+='<button class="'+cl+'" data-act="pick" data-i="'+k+'"'+(c.done?" disabled":"")+'><span class="ln">'+(k+1)+'</span><span>'+hl(l)+'</span></button>';
+    });
+    body+='</div>';
+  }
+  if(q.type==="code"){
+    body='<label class="olabel" for="code">Tu código</label>'+
+      '<textarea id="code" class="codearea" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Escribe aquí tu HTML…"'+(c.done?" readonly":"")+'>'+esc(c.code)+'</textarea>'+
+      '<div class="browser"><p>Vista previa</p><div class="pv" id="pv"></div></div>';
+  }
+
+  var fb="";
+  if(c.hint) fb+='<p class="hintbox"><b>Pista:</b> '+inline(q.hint)+'</p>';
+  if(c.msg){
+    fb+='<div class="fb '+c.mt+'"><div>'+inline(c.msg)+'</div>';
+    if(c.done&&!c.ok){
+      if(q.type==="order") fb+='<div class="sol">Orden correcto:<pre class="ed">'+q.items.map(hl).join("\n")+'</pre></div>';
+      else if(q.type!=="mc") fb+='<div class="sol">Respuesta correcta:<pre class="ed">'+hl(q.sol)+'</pre></div>';
+    }
+    fb+='</div>';
+  }
+
+  var left=MAX_TRIES-c.tries, dots="";
+  for(i=0;i<MAX_TRIES;i++) dots+= i<left?"●":"○";
+  var actions = c.done
+    ? '<button class="btn" data-act="next">'+(S.idx===N-1?"Ver mi resultado":"Siguiente reto")+'</button>'
+    : '<button class="btn" data-act="submit">Revisar</button><button class="btn ghost" data-act="hint"'+(c.hint?" disabled":"")+'>Ver pista (−'+HINT_COST+' puntos)</button><p class="tries">Intentos <span class="dots" aria-label="'+left+' intentos restantes">'+dots+'</span></p>';
+
+  app.innerHTML=
+  '<header class="bar"><div class="bar-in">'+
+   '<span class="brand"><span class="tg">&lt;</span>index.html<span class="tg">&gt;</span></span>'+
+   '<span class="who"><b>'+esc(S.name)+'</b>, '+esc(S.group)+'</span>'+
+   '<span class="stat"><b id="pts">'+totalPts()+'</b><span>puntos</span></span>'+
+   '<span class="stat"><b id="clock" class="mono">'+fmtTime(Date.now()-S.start)+'</b></span>'+
+  '</div><div class="track" aria-hidden="true">'+segs+'</div></header>'+
+  '<div class="grid"><section class="q" aria-live="polite">'+
+   '<div class="qtop"><div><p class="lvl">Nivel '+(q.lvl+1)+' de '+LEVELS.length+': '+LEVELS[q.lvl]+'</p>'+
+   '<p class="qn">Reto '+(S.idx+1)+' de '+N+'</p></div>'+
+   (c.done?'':'<p class="cd" id="cd"><b>'+fmtTime(c.deadline-Date.now())+'</b><span>restante</span></p>')+'</div>'+
+   (c.done?'':'<div class="cdbar" id="cdbar"><i style="width:'+cdPct()+'%"></i></div>')+
+   '<h2>'+inline(q.q)+'</h2>'+body+fb+
+   '<div class="actions">'+actions+'</div>'+
+  '</section>'+fileBox()+'</div>';
+
+  if(q.type==="code"){
+    var ta=document.getElementById("code"), pv=document.getElementById("pv");
+    renderPreview(pv,c.code);
+    ta.addEventListener("input",function(){c.code=ta.value;renderPreview(pv,c.code);save();});
+    ta.addEventListener("keydown",function(e){
+      if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();var s=ta.selectionStart;ta.setRangeText("  ",s,ta.selectionEnd,"end");c.code=ta.value;renderPreview(pv,c.code);}
+    });
+    if(!c.done) ta.focus();
+  }
+  if(q.type==="fill"){
+    app.querySelectorAll(".blank").forEach(function(inp){
+      inp.addEventListener("input",function(){c.vals[+inp.dataset.b]=inp.value;save();});
+      inp.addEventListener("keydown",function(e){if(e.key==="Enter")submit();});
+    });
+    var first=app.querySelector(".blank:not([disabled])"); if(first&&!c.msg) first.focus();
+  }
+  var ln=document.getElementById("lines"); if(ln) ln.scrollTop=ln.scrollHeight;
+  if(c.done){var nb=app.querySelector('[data-act="next"]'); if(nb) nb.focus();}
+  justAdded=false;
+}
+
+function cdPct(){var c=S.cur,q=Qi(S.idx);return Math.max(0,Math.min(100,(c.deadline-Date.now())/(limitOf(q)*10)));}
+function tickCountdown(){
+  if(!S||!S.start||S.idx>=N) return;
+  var c=S.cur; if(c.done||!c.deadline) return;
+  var left=c.deadline-Date.now();
+  if(left<=0){ timeUp(); return; }
+  var cd=document.getElementById("cd"), bar=document.getElementById("cdbar");
+  if(cd){cd.querySelector("b").textContent=fmtTime(left);cd.classList.toggle("low",left<10000);}
+  if(bar){bar.firstChild.style.width=cdPct()+"%";bar.classList.toggle("low",left<10000);}
+}
+function timeUp(){
+  var q=Qi(S.idx),c=S.cur; if(c.done) return;
+  if(q.type==="code"){var ta=document.getElementById("code");if(ta)c.code=ta.value;}
+  c.timeout=true;
+  finishQ(false,0,"Se acabó el tiempo. "+q.explain);
+}
+function submit(){
+  var q=Qi(S.idx), c=S.cur, ok=false, msg="";
+  if(c.done) return;
+  if(c.deadline&&Date.now()>c.deadline) return timeUp();
+  if(q.type==="mc"||q.type==="bug"){
+    if(c.sel[0]==null){ c.msg=q.type==="bug"?"Toca la línea que crees que tiene el error.":"Elige una opción."; c.mt="info"; return renderGame(); }
+    ok=c.sel[0]===q.ans;
+  }
+  if(q.type==="fill"){
+    var blanks=q.parts.filter(function(p){return typeof p!=="string";});
+    for(var i=0;i<blanks.length;i++) if(!norm(c.vals[i])){ c.msg="Completa todos los espacios."; c.mt="info"; return renderGame(); }
+    ok=blanks.every(function(b,k){return b.b.indexOf(norm(c.vals[k]))>=0;});
+    if(ok&&q.same&&norm(c.vals[0])!==norm(c.vals[1])){ok=false;msg="La etiqueta de apertura y la de cierre deben tener el mismo nombre.";}
+  }
+  if(q.type==="order"){
+    if(c.sel.length<q.items.length){ c.msg="Coloca todas las líneas antes de revisar."; c.mt="info"; return renderGame(); }
+    ok=c.sel.every(function(v,k){return v===k;});
+    if(!ok){var good=0;while(good<c.sel.length&&c.sel[good]===good)good++;msg="Tus primeras "+good+" línea(s) están bien; a partir de ahí algo está fuera de lugar.";}
+  }
+  if(q.type==="code"){
+    if(!c.code.trim()){ c.msg="Escribe tu código antes de revisar."; c.mt="info"; return renderGame(); }
+    var e=checkCode(q.check,c.code); ok=!e; msg=e||"";
+  }
+  c.tries++;
+  if(ok){
+    var pts=Math.max(0,SCORES[c.tries-1]-(c.hint?HINT_COST:0));
+    finishQ(true,pts,"Correcto: +"+pts+" puntos. "+q.explain);
+  } else if(c.tries>=MAX_TRIES){
+    finishQ(false,0,(msg?msg+" ":"")+"Se acabaron los intentos. "+q.explain);
+  } else {
+    var rest=MAX_TRIES-c.tries;
+    c.msg=(msg||"Todavía no es correcto.")+" Te queda"+(rest>1?"n ":" ")+rest+" intento"+(rest>1?"s":"")+".";
+    c.mt="bad"; save(); renderGame();
+  }
+}
+function finishQ(ok,pts,msg){
+  var c=S.cur;
+  c.done=true;c.ok=ok;c.pts=pts;c.msg=msg;c.mt=ok?"ok":"bad";
+  S.res[S.idx]={ok:ok,pts:pts,tries:c.tries,hint:c.hint,ms:Math.min(Date.now(),c.deadline||Date.now())-c.shown,to:!!c.timeout,code:Qi(S.idx).type==="code"};
+  justAdded=true; save(); renderGame();
+}
+
+function renderResults(){
+  if(!S.end){S.end=Date.now();save();}
+  var pts=totalPts(), grade=Math.round(pts/MAXPTS*100)/10;
+  var okN=S.res.filter(function(r){return r&&r.ok;}).length;
+  var first=S.res.filter(function(r){return r&&r.ok&&r.tries===1&&!r.hint;}).length;
+  var hints=S.res.filter(function(r){return r&&r.hint;}).length;
+  var timeouts=S.res.filter(function(r){return r&&r.to;}).length;
+  var chips="";
+  S.res.forEach(function(r,i){
+    var cl="tchip "+(r.ok?(r.tries===1&&!r.hint?"okf":"okp"):"fail")+(r.code?" code":"");
+    chips+='<span class="'+cl+'"><b>'+(i+1)+'</b>'+(r.to?"tiempo":fmtTime(r.ms||0))+'</span>';
+  });
+  var verdict= grade>=9?"Excelente trabajo":grade>=8?"Muy bien":grade>=6?"Aprobado":"Necesitas repasar";
+  var d=new Date(S.end);
+  var date=d.toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"})+", "+d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+  var lv="";
+  LEVELS.forEach(function(name,l){
+    var got=0,max=0; S.plan.forEach(function(e,i){if(BANK[e.id].lvl===l){max+=10;got+=S.res[i]?S.res[i].pts:0;}});
+    var pc=Math.round(got/max*100);
+    lv+='<div class="lvrow"><span>'+esc(name)+'</span><span class="meter"><i style="width:'+pc+'%"></i></span><b>'+pc+'%</b></div>';
+  });
+  app.innerHTML=
+  '<main class="res"><section class="card">'+
+   '<h1>'+esc(S.name)+'</h1><p class="grp">Grupo '+esc(S.group)+'. Actividad: fundamentos de HTML.</p>'+
+   '<div class="gradebox"><span class="grade">'+grade.toFixed(1)+'</span><span>/ 10</span><span class="verdict">'+verdict+'</span></div>'+
+   '<dl class="facts">'+
+    '<div><dt>Puntos</dt><dd>'+pts+' de '+MAXPTS+'</dd></div>'+
+    '<div><dt>Retos correctos</dt><dd>'+okN+' de '+N+'</dd></div>'+
+    '<div><dt>Al primer intento sin pista</dt><dd>'+first+'</dd></div>'+
+    '<div><dt>Pistas usadas</dt><dd>'+hints+'</dd></div>'+
+    '<div><dt>Tiempo</dt><dd>'+fmtLong(S.end-S.start)+'</dd></div>'+
+    '<div'+(S.blurs?' class="warn"':'')+'><dt>Salidas de la pestaña</dt><dd>'+S.blurs+'</dd></div>'+
+    '<div'+(S.pastes?' class="warn"':'')+'><dt>Intentos de pegar texto</dt><dd>'+(S.pastes||0)+'</dd></div>'+
+    '<div><dt>Retos sin terminar a tiempo</dt><dd>'+timeouts+'</dd></div>'+
+    '<div><dt>Intento en este equipo</dt><dd>'+S.attemptNo+'</dd></div>'+
+    '<div><dt>Versión</dt><dd class="mono">'+versionCode()+'</dd></div>'+
+    '<div><dt>Terminado</dt><dd>'+esc(date)+'</dd></div>'+
+   '</dl>'+
+   '<div class="lv">'+lv+'</div>'+
+   '<h3>Tiempo por reto</h3><p class="tleg">Verde: al primer intento. Amarillo: con más intentos o pista. Rojo: perdido. Fondo azul: reto de escribir código.</p>'+
+   '<div class="times">'+chips+'</div>'+
+   '<p class="shot">Toma una captura de pantalla de este resultado y entrégala a tu maestro.</p>'+
+  '</section>'+
+  '<details><summary>Ver el index.html que construiste</summary>'+fileBox()+'</details>'+
+  '<div class="after"><button class="btn ghost" data-act="reset">'+(resetArmed?"Confirmar: borrar y empezar con otro alumno":"Nuevo alumno")+'</button></div>'+
+  '</main>';
+}
+
+/* ---------- eventos ---------- */
+app.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]"); if(!b||b.disabled) return;
+  var act=b.dataset.act, c=S&&S.cur, i=+b.dataset.i;
+  if(act==="start") return start();
+  if(act==="pick"){c.sel=[i];c.msg="";save();return renderGame();}
+  if(act==="opick"){c.sel.push(i);c.msg="";save();return renderGame();}
+  if(act==="unpick"){c.sel=c.sel.filter(function(x){return x!==i;});save();return renderGame();}
+  if(act==="submit") return submit();
+  if(act==="hint"){c.hint=true;save();return renderGame();}
+  if(act==="next"){S.idx++;S.cur=newCur();if(S.idx>=N)S.end=Date.now();save();render();window.scrollTo(0,0);return;}
+  if(act==="reset"){
+    if(!resetArmed){resetArmed=true;return renderResults();}
+    resetArmed=false;S=null;try{localStorage.removeItem(KEY);}catch(err){}render();window.scrollTo(0,0);
+  }
+});
+
+function toast(msg){
+  var old=document.querySelector(".toast"); if(old) old.remove();
+  var t=document.createElement("div");t.className="toast";t.setAttribute("role","alert");t.textContent=msg;
+  document.body.appendChild(t);clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.remove();},4000);
+}
+["paste","drop"].forEach(function(ev){
+  app.addEventListener(ev,function(e){
+    if(!e.target.closest||!e.target.closest(".codearea,.blank")) return;
+    e.preventDefault();
+    if(S&&S.start&&S.idx<N){S.pastes=(S.pastes||0)+1;save();}
+    toast("Pegar texto está desactivado. Escribe tu respuesta a mano. Este intento aparecerá en tu resultado.");
+  },true);
+});
+document.addEventListener("visibilitychange",function(){
+  if(!S||!S.start||S.idx>=N) return;
+  if(document.hidden){S.blurs=(S.blurs||0)+1;save();}
+  else{
+    toast("Saliste de la actividad ("+S.blurs+" "+(S.blurs===1?"vez":"veces")+"). Aparecerá en tu resultado.");
+    tickCountdown();
+  }
+});
+
+setInterval(function(){
+  if(!S||!S.start||S.idx>=N) return;
+  var el=document.getElementById("clock"); if(el) el.textContent=fmtTime(Date.now()-S.start);
+  tickCountdown();
+},1000);
+
+render();
+})();
+</script>
+</body>
+</html>
